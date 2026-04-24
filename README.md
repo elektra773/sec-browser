@@ -6,6 +6,7 @@ This project includes:
 
 - `sec_browser.py`: a desktop browser for selecting traces, previewing overlays, and exporting SVG, PNG, Plotly HTML, XMGrace, and session JSON files
 - `plot_sec_curves.py`: a command-line tool for scripted overlays and exports
+- `SEC_Browser_Colab.ipynb`: a Colab workflow for uploading SEC files and generating exports in the cloud
 
 ## Features
 
@@ -53,6 +54,14 @@ Each SVG/PNG export also writes a companion session file:
 - `figure_name.session.json`
 
 You can reload that state later from `Load Session`.
+
+## Colab Usage
+
+Open the notebook directly in Colab:
+
+- [SEC_Browser_Colab.ipynb](https://colab.research.google.com/github/elektra773/sec-browser/blob/main/SEC_Browser_Colab.ipynb)
+
+The notebook is the recommended path for cloud use and for collaborators who do not want to run the desktop Tk browser locally.
 
 ## CLI Usage
 

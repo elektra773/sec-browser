@@ -62,6 +62,15 @@ Open the notebook directly in Colab:
 - [SEC_Browser_Colab.ipynb](https://colab.research.google.com/github/elektra773/sec-browser/blob/main/SEC_Browser_Colab.ipynb)
 
 The notebook is the recommended path for cloud use and for collaborators who do not want to run the desktop Tk browser locally.
+It now mirrors the desktop workflow much more closely, including:
+
+- upload plus session loading
+- search, quick filters, and trace multi-select
+- tabbed controls for plot settings, appearance, and export
+- per-trace color selection
+- per-trace peak-label controls
+- SVG + PNG export with companion `.session.json`
+- Plotly HTML and XMGrace export
 
 ## CLI Usage
 

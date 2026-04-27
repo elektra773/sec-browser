@@ -13,7 +13,7 @@ This project includes:
 - `sec_browser.py`: a desktop browser for selecting traces, previewing overlays, and exporting SVG, PNG, Plotly HTML, XMGrace, and session JSON files
 - `streamlit_app.py`: a shareable browser-based app for uploading SEC files and generating the same exports from a web UI
 - `plot_sec_curves.py`: a command-line tool for scripted overlays and exports
-- `SEC_Browser_Colab.ipynb`: a Colab workflow for uploading SEC files and generating exports in the cloud
+- `SEC_Browser_Colab.ipynb`: a Colab workflow for uploading SEC files and generating exports in the cloud: **NOT RECOMMENDED**
 
 ## Features
 

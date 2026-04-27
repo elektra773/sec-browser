@@ -83,6 +83,29 @@ For Streamlit Community Cloud, point the deployment at:
 - app file: `streamlit_app.py`
 - dependency file: `requirements.txt`
 
+## Deploy To Streamlit Community Cloud
+
+This repository is already organized for Streamlit Community Cloud deployment.
+
+Use the official Community Cloud flow:
+
+1. Go to [share.streamlit.io](https://share.streamlit.io/).
+2. Sign in and connect your GitHub account if needed.
+3. Click `Create app`.
+4. Choose repository: `elektra773/sec-browser`
+5. Choose branch: `main`
+6. Choose app file: `streamlit_app.py`
+7. Optional: choose a custom subdomain
+8. In `Advanced settings`, leave secrets empty unless you add private credentials later
+9. Click `Deploy`
+
+The official deployment steps are documented here:
+
+- [Deploy your app on Community Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy)
+- [Prep and deploy your app on Community Cloud](https://docs.streamlit.io/streamlit-community-cloud/get-started/deploy-an-app)
+
+After deployment, Streamlit assigns a public `streamlit.app` URL that you can share directly.
+
 ## Colab Usage
 
 Open the notebook directly in Colab:

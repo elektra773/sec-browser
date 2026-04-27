@@ -5,6 +5,7 @@ Interactive browser and export tools for size exclusion chromatography traces.
 This project includes:
 
 - `sec_browser.py`: a desktop browser for selecting traces, previewing overlays, and exporting SVG, PNG, Plotly HTML, XMGrace, and session JSON files
+- `streamlit_app.py`: a shareable browser-based app for uploading SEC files and generating the same exports from a web UI
 - `plot_sec_curves.py`: a command-line tool for scripted overlays and exports
 - `SEC_Browser_Colab.ipynb`: a Colab workflow for uploading SEC files and generating exports in the cloud
 
@@ -17,11 +18,12 @@ This project includes:
 - Export Illustrator-friendly SVG plus high-resolution PNG
 - Save and reload `.session.json` figure states
 - Export Plotly HTML and XMGrace `.agr`
+- Run the workflow as a browser app with Streamlit
 
 ## Requirements
 
 - Python 3.11+
-- Tkinter available in your Python build
+- Tkinter available in your Python build for the desktop browser only
 
 Install dependencies:
 
@@ -54,6 +56,32 @@ Each SVG/PNG export also writes a companion session file:
 - `figure_name.session.json`
 
 You can reload that state later from `Load Session`.
+
+## Web App Usage
+
+Run the Streamlit app:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+The web app is designed for GitHub sharing and hosted deployment. It includes:
+
+- SEC file uploads instead of local folder browsing
+- search, quick filters, and multi-trace selection
+- normalized or actual absorbance mode
+- figure size, line width, legend, transparency, and per-trace colors
+- per-trace peak annotation controls
+- Matplotlib and Plotly preview tabs
+- downloadable SVG, PNG, Plotly HTML, XMGrace, and `.session.json`
+- a one-click zip bundle containing all export formats
+
+This is the best path if you want a browser-based version instead of the local Tk app.
+
+For Streamlit Community Cloud, point the deployment at:
+
+- app file: `streamlit_app.py`
+- dependency file: `requirements.txt`
 
 ## Colab Usage
 
@@ -104,4 +132,5 @@ python plot_sec_curves.py \
 - The browser now builds `Quick Filters` automatically from repeated words in whatever SEC labels are present in the folder.
 - The code works on generic `.asc` and `.xls` SEC exports with two numeric columns after the standard header rows.
 - For GitHub, keep the code and docs in the repo and usually leave raw data files out unless you intend to share them.
-- For Colab, the command-line workflow in `plot_sec_curves.py` is the better fit, since the Tk browser is a desktop GUI.
+- For a hosted browser workflow, `streamlit_app.py` is the best fit.
+- For Colab, the notebook is useful when collaborators are already working inside Google Drive or Colab.

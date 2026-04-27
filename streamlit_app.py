@@ -232,6 +232,13 @@ def trace_option_label(path: Path) -> str:
     return f"{clean_label(path)} [{column} | {date} | {file_type}]"
 
 
+def trace_detail_label(path: Path) -> str:
+    column = extract_column_name(path) or "No column"
+    date = extract_run_date(path) or "No date"
+    file_type = path.suffix.lower().lstrip(".")
+    return f"{clean_label(path)} | {column} | {date} | {file_type}"
+
+
 def get_selected_paths(all_paths: list[Path]) -> list[Path]:
     selected_names = set(st.session_state["selected_trace_names"])
     return [path for path in all_paths if path.name in selected_names]
@@ -495,55 +502,82 @@ st.session_state["selected_trace_names"] = [name for name in st.session_state["s
 tab_browser, tab_plot, tab_appearance, tab_export = st.tabs(["Browser", "Plot", "Appearance", "Export"])
 
 with tab_browser:
-    session_file = st.file_uploader("Optional session JSON", type=["json"], accept_multiple_files=False)
-    action_col1, action_col2, action_col3, action_col4 = st.columns([1, 1, 1, 1.2])
-    with action_col1:
-        if st.button("Refresh"):
-            st.session_state["status_message"] = "Refreshed uploaded files."
-            st.rerun()
-    with action_col2:
-        if st.button("Select Visible"):
-            st.session_state["selected_trace_names"] = filtered_names
-            st.rerun()
-    with action_col3:
-        if st.button("Clear"):
-            st.session_state["selected_trace_names"] = []
-            st.rerun()
-    with action_col4:
-        if st.button("Load Session") and session_file is not None:
-            apply_session_state(json.loads(session_file.getvalue().decode("utf-8")), all_paths)
+    left_col, right_col = st.columns([0.95, 1.8], gap="large")
+
+    with left_col:
+        session_file = st.file_uploader("Optional session JSON", type=["json"], accept_multiple_files=False)
+        action_col1, action_col2 = st.columns(2)
+        with action_col1:
+            if st.button("Refresh", use_container_width=True):
+                st.session_state["status_message"] = "Refreshed uploaded files."
+                st.rerun()
+            if st.button("Select Visible", use_container_width=True):
+                st.session_state["selected_trace_names"] = filtered_names
+                st.rerun()
+        with action_col2:
+            if st.button("Clear", use_container_width=True):
+                st.session_state["selected_trace_names"] = []
+                st.rerun()
+            if st.button("Load Session", use_container_width=True) and session_file is not None:
+                apply_session_state(json.loads(session_file.getvalue().decode("utf-8")), all_paths)
+                st.rerun()
+
+        st.text_input("Search", key="search_term", placeholder="WT, blocker, EC1, salsa, S75...")
+        st.selectbox("Load", options=["asc", "xls", "both"], key="format_filter")
+        st.multiselect("Quick Filters", options=quick_filter_options, key="quick_filters")
+
+        if st.button("Title From Selection", use_container_width=True):
+            st.session_state["plot_title"] = title_from_selection(get_selected_paths(all_paths))
             st.rerun()
 
-    st.text_input("Search", key="search_term", placeholder="WT, blocker, EC1, salsa, S75...")
-    st.selectbox("Load", options=["asc", "xls", "both"], key="format_filter")
-    st.multiselect("Quick Filters", options=quick_filter_options, key="quick_filters")
+        st.caption(f"{len(filtered_paths)} visible trace(s), {len(st.session_state['selected_trace_names'])} selected.")
 
-    option_lookup = {trace_option_label(path): path.name for path in filtered_paths}
-    default_labels = [
-        label for label, name in option_lookup.items() if name in st.session_state["selected_trace_names"]
-    ]
-    selected_labels = st.multiselect(
-        "Traces",
-        options=list(option_lookup.keys()),
-        default=default_labels,
-        help="This is the only place you need to choose traces.",
-    )
-    st.session_state["selected_trace_names"] = [option_lookup[label] for label in selected_labels]
-
-    if st.button("Title From Selection"):
-        st.session_state["plot_title"] = title_from_selection(get_selected_paths(all_paths))
-        st.rerun()
-
-    inventory = build_inventory(all_paths)
-    if inventory.empty:
-        st.info("No SEC files uploaded yet.")
-    else:
-        filtered_set = {path.name for path in filtered_paths}
-        st.dataframe(
-            inventory[inventory["filename"].isin(filtered_set)].reset_index(drop=True),
-            use_container_width=True,
-            hide_index=True,
-        )
+    with right_col:
+        inventory = build_inventory(all_paths)
+        if inventory.empty:
+            st.info("No SEC files uploaded yet.")
+        else:
+            previously_selected = list(st.session_state["selected_trace_names"])
+            filtered_inventory = inventory[inventory["filename"].isin({path.name for path in filtered_paths})].copy()
+            filtered_inventory.insert(
+                0,
+                "plot",
+                filtered_inventory["filename"].isin(st.session_state["selected_trace_names"]),
+            )
+            filtered_inventory = filtered_inventory.rename(
+                columns={
+                    "plot": "Plot",
+                    "sample": "Sample",
+                    "column": "Column",
+                    "date": "Date",
+                    "type": "Type",
+                }
+            )
+            selector_view = filtered_inventory[["Plot", "Sample", "Column", "Date", "Type"]]
+            edited_selector = st.data_editor(
+                selector_view,
+                use_container_width=True,
+                hide_index=True,
+                height=460,
+                disabled=["Sample", "Column", "Date", "Type"],
+                column_config={
+                    "Plot": st.column_config.CheckboxColumn(
+                        "Plot",
+                        help="Check traces to include in the overlay.",
+                        width="small",
+                    ),
+                    "Sample": st.column_config.TextColumn("Sample", width="large"),
+                    "Column": st.column_config.TextColumn("Column", width="medium"),
+                    "Date": st.column_config.TextColumn("Date", width="medium"),
+                    "Type": st.column_config.TextColumn("Type", width="small"),
+                },
+                key="trace_selector_editor",
+            )
+            visible_selected = filtered_inventory.loc[edited_selector["Plot"], "filename"].tolist()
+            hidden_selected = [
+                name for name in previously_selected if name not in set(filtered_inventory["filename"])
+            ]
+            st.session_state["selected_trace_names"] = hidden_selected + visible_selected
 
 with tab_plot:
     st.radio(
@@ -616,12 +650,26 @@ with tab_appearance:
         for index, path in enumerate(selected_paths):
             key = f"color_{path.name}"
             st.session_state.setdefault(key, color_name_for_trace(path, index))
-            selected_color = st.selectbox(
-                clean_label(path),
-                options=list(STANDARD_COLORS.keys()),
-                index=list(STANDARD_COLORS.keys()).index(st.session_state[key]),
-                key=key,
-            )
+            palette_col, swatch_col = st.columns([1.9, 0.7], gap="small")
+            with palette_col:
+                selected_color = st.selectbox(
+                    trace_detail_label(path),
+                    options=list(STANDARD_COLORS.keys()),
+                    index=list(STANDARD_COLORS.keys()).index(st.session_state[key]),
+                    key=key,
+                    format_func=lambda name: f"{name}  {STANDARD_COLORS[name]}",
+                )
+            with swatch_col:
+                swatch_hex = STANDARD_COLORS[selected_color]
+                st.markdown(
+                    (
+                        "<div style='padding-top:2rem'>"
+                        f"<div style='height:2.6rem;border-radius:0.6rem;border:1px solid #d0d7de;background:{swatch_hex};'></div>"
+                        f"<div style='font-size:0.8rem;color:#666;padding-top:0.35rem'>{swatch_hex}</div>"
+                        "</div>"
+                    ),
+                    unsafe_allow_html=True,
+                )
             st.session_state["trace_colors"][path.name] = selected_color
 
 selected_paths = get_selected_paths(all_paths)

@@ -2,6 +2,12 @@
 
 Interactive browser and export tools for size exclusion chromatography traces.
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://sec-browser-sxgbgr8md3c4qcdexusdls.streamlit.app/)
+
+Hosted app:
+
+- [SEC Browser on Streamlit Community Cloud](https://sec-browser-sxgbgr8md3c4qcdexusdls.streamlit.app/)
+
 This project includes:
 
 - `sec_browser.py`: a desktop browser for selecting traces, previewing overlays, and exporting SVG, PNG, Plotly HTML, XMGrace, and session JSON files
@@ -105,6 +111,15 @@ The official deployment steps are documented here:
 - [Prep and deploy your app on Community Cloud](https://docs.streamlit.io/streamlit-community-cloud/get-started/deploy-an-app)
 
 After deployment, Streamlit assigns a public `streamlit.app` URL that you can share directly.
+
+Current deployment:
+
+- [https://sec-browser-sxgbgr8md3c4qcdexusdls.streamlit.app/](https://sec-browser-sxgbgr8md3c4qcdexusdls.streamlit.app/)
+
+If anonymous visitors are redirected to sign-in, open your app in Streamlit Community Cloud and set:
+
+- `App settings` → `Sharing`
+- `Who can view this app` → `This app is public and searchable`
 
 ## Colab Usage
 
